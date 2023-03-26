@@ -154,3 +154,38 @@ def ChangeImageColors(A,B,path,prefix,openImage):
                 pre1 +=1
     except:
         print("something went wrong:(")
+def ChangeImageRandomColor (A,path,newPath,openImage):
+    """
+    Replace pixels with A color with random color
+    if A is empty, it replace all which is not colorless with B color
+    if newPath is empty newPath = copy-"path"
+    work only with PNG
+    empty is if the value is : () or ""
+    
+    
+    Parameters
+    ----------
+    A : tuple, (Red, Green, Blue) or () 
+    Color to replace
+    
+    path : image path
+    
+    newPath : new image path
+    
+    openImage : did you want to open the edited image
+
+
+    Returns
+    -------
+    None
+
+    """
+    try:
+        r = randint(0,255)
+        g = randint(0,255)
+        b = randint(0,255)
+        B = (r,g,b)
+        print(B)
+        ChangeImageColor (A,B,path,newPath,openImage)
+    except:
+        print("something went wrong:(") 
