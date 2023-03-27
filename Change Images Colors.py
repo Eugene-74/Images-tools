@@ -1,6 +1,7 @@
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
+
 def ChangeImageColor (A,B,path,newPath,openImage):
     """
     Replace pixels with A color with the B color
@@ -42,7 +43,6 @@ def ChangeImageColor (A,B,path,newPath,openImage):
         r2,g2,b2=B
         x,y=0,0
         w,h = img.width,img.height
-        print("h :",h,"w : ",w)
         for y in range (h):
             for x in range (w):
                 r,g,b,a=img.getpixel((x,y))
@@ -154,38 +154,110 @@ def ChangeImageColors(A,B,path,prefix,openImage):
                 pre1 +=1
     except:
         print("something went wrong:(")
-def ChangeImageRandomColor (A,path,newPath,openImage):
+        
+def ChangeImageSize(path,prefix,north,south,east,west,openImage):
     """
-    Replace pixels with A color with random color
-    if A is empty, it replace all which is not colorless with B color
-    if newPath is empty newPath = copy-"path"
-    work only with PNG
+    Change the size of an image
+    if prefix is empty newPath = copy-"path"
+    work only with PNG or JPG
     empty is if the value is : () or ""
-    
-    
+
     Parameters
     ----------
-    A : tuple, (Red, Green, Blue) or () 
-    Color to replace
-    
     path : image path
     
-    newPath : new image path
+    prefix : image prefix
+    
+    north : how many pixels did you want to delete on north
+    
+    south : how many pixels did you want to delete on south
+    
+    east : how many pixels did you want to delete on east
+    
+    west : how many pixels did you want to delete on west
     
     openImage : did you want to open the edited image
 
-
     Returns
     -------
-    None
+    None.
 
     """
     try:
-        r = randint(0,255)
-        g = randint(0,255)
-        b = randint(0,255)
-        B = (r,g,b)
-        print(B)
-        ChangeImageColor (A,B,path,newPath,openImage)
-    except:
-        print("something went wrong:(") 
+        png = isPng(path)
+        jpg = isJpg(path)
+        img = Image.open(str(path))
+        T1= []
+        T2=[]
+        w,h = img.width,img.height
+        if north+south >= h:
+            print("ERROR you can't delete more pixel the the image is")
+            return None
+        elif west+east >= w:
+            print("ERROR you can't delete more pixel the the image is")
+        elif north==0 and south==0 and east==0 and west==0:
+            print("ERROR you can't delete any pixel")
+            return None
+        for y in range (h):
+            T= []
+            for x in range (w):
+                if png:
+                    r,g,b,a=img.getpixel((x,y))
+                    color = (r,g,b,a)
+                if jpg:
+                    r,g,b=img.getpixel((x,y))
+                    color = (r,g,b)
+                T.append(color)
+            T1.append(T)
+        
+        T1=T1[north:h-south]
+        for t in T1 :
+            t=t[west:w-east]
+            T2.append(t)
+            
+        y,x=h-south-north,w-east-west
+        coord = (x,y)
+        print(coord,"coord ?")
+        if png:
+            print("png")
+            img2 = Image.new('RGBA', coord)
+        elif jpg:
+            print("jpg")
+            img2 = Image.new('RGB', coord)
+        else:
+            print("ERROR something went wrong we need jpg or png")
+            
+        w,h = img2.width,img2.height
+        print(h,w,len(T2),len(T2[0]))
+        
+        
+        for y in range (h):
+            for x in range (w):
+                #print(x,y)
+                color = T2[y][x]
+                #print(color)
+                if png:
+                    if color[3]!=0:
+                        img2.putpixel((x,y),color)
+                if jpg:
+                    img2.putpixel((x,y),color)
+        if openImage :
+            img2.show()
+        if prefix == "" or prefix == ():
+            newPath = "copy-"+str(path)
+        else :
+            newPath = prefix+str(path)
+        img2.save(newPath)
+    except FileNotFoundError:
+        print("there is no image at this location")
+    #except:
+        #print("something went wrong:(")
+        
+def isPng(path):
+    if path[len(path)-4:] == ".png":
+        return True
+    return False
+def isJpg(path):
+    if path[len(path)-4:] == ".jpg":
+        return True
+    return False
